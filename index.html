@@ -2,97 +2,204 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Study Clock</title>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Study Timer</title>
     <style>
-        /* Reset and base styles */
-        * {
+        body {
+			overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             color: #fff;
+        }
+		.bg{
+			background-image: url("bg.jpeg");
+			filter: blur(8px);
+			-webkit-filter: blur(8px);
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: cover;
+			
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			z-index: -1;
+		}
+        .main-content {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-            animation: fadeIn 1s ease-in-out;
+            height: 100vh;
+            padding: 20px;
+        }
+        #timer {
+            font-size: 6em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: rgba(255,255,255,0.5);
+            padding: 20px 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        #toggle {
+            font-size: 1.5em;
+            padding: 15px 30px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+        #toggle:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        #toggle:active {
+            transform: translateY(0);
+        }
+        .sessions-container {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 180px;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .sessions-container h2 {
+            margin-top: 0;
+            color: #fff;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .session {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            opacity: 0.6;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .session:hover {
+            opacity: 0.8;
+            transform: translateY(-5px);
+        }
+        .session.expanded {
+            opacity: 1;
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+        }
+        .session-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .session-total {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        .session-buttons {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        .session.expanded .session-buttons {
+            display: flex;
+        }
+        .session button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .select-btn {
+            background: #FF9800;
+            color: white;
+        }
+        .select-btn:hover {
+            background: rgba(255,152,0,1);
+            transform: translateY(-2px);
+        }
+        .rename-btn {
+            background: #2196F3;
+            color: white;
+        }
+        .rename-btn:hover {
+            background: #0b7dda;
+            transform: translateY(-2px);
+        }
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+        .delete-btn:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+        #add-session {
+		    position: fixed;
+		    bottom: 20px;
+		    right: 20px;
+		    width: 60px;
+		    height: 60px;
+		    border-radius: 50%;
+		    background: #4FC3F7;
+		    color: white;
+		    border: none;
+		    font-size: 2em;
+		    cursor: pointer;
+		    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+		    transition: all 0.3s;
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		}
+		#add-session:hover {
+		    background: #29B6F6;
+		    transform: scale(1.1);
+		}
+
+        #add-session:active {
+            transform: scale(1);
         }
 
-        /* Quote Section */
+        /* Added: Quote Section */
         .quote-container {
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
             text-align: center;
+            margin-bottom: 20px; /* Positions it above the timer within .main-content */
             z-index: 10;
-            width: 100%;
-            max-width: 600px;
-            animation: slideIn 0.8s ease-out;
         }
 
         .quote-text {
-            font-size: 2.5rem;
+            font-size: 2.5rem; /* Large text */
             font-weight: 300;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             margin: 0;
             line-height: 1.2;
             opacity: 0.9;
-            animation: pulse 3s infinite ease-in-out;
         }
 
-        /* Timer Container */
-        .timer-container {
-            position: relative;
-            text-align: center;
-            z-index: 5;
-            animation: fadeIn 1.2s ease-in-out;
-        }
-
-        .timer-display {
-            font-size: 4rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite ease-in-out;
-        }
-
-        /* Buttons */
-        .buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            animation: slideIn 1s ease-out;
-        }
-
-        button {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: #fff;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-            animation: bounce 1.5s infinite;
-        }
-
-        button:hover {
-            background: rgba(255, 255, 255, 0.4);
-        }
-
-        /* Settings or additional elements (if any) */
-        .settings {
-            margin-top: 20px;
-            animation: fadeIn 1.5s ease-in-out;
-        }
-
-        /* Keyframe Animations */
+        /* Added: Keyframe Animations for everything */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -115,99 +222,240 @@
             60% { transform: translateY(-5px); }
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .quote-text {
-                font-size: 1.8rem;
-            }
-            .quote-container {
-                top: 15%;
-            }
-            .timer-display {
-                font-size: 3rem;
-            }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        body {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .bg {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        .main-content {
+            animation: slideIn 1s ease-out;
+        }
+
+        .quote-container {
+            animation: slideIn 0.8s ease-out;
+        }
+
+        .quote-text {
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        #timer {
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        #toggle {
+            animation: bounce 1.5s infinite;
+        }
+
+        .sessions-container {
+            animation: slideIn 1.2s ease-out;
+        }
+
+        .sessions-container h2 {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        .session {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .session button {
+            animation: bounce 1.5s infinite;
+        }
+
+        #add-session {
+            animation: rotate 2s infinite linear; /* Subtle rotation for the + button */
         }
     </style>
 </head>
 <body>
-    <!-- Quote Section -->
-    <div class="quote-container">
-        <p class="quote-text">只要你願意，一切都可以改變</p>
-    </div>
-
-    <!-- Timer Section -->
-    <div class="timer-container">
-        <div class="timer-display" id="timer">25:00</div>
-        <div class="buttons">
-            <button id="start">Start</button>
-            <button id="pause">Pause</button>
-            <button id="reset">Reset</button>
+	<div class="bg"></div>
+    <div class="main-content">
+        <!-- Added: Quote Section -->
+        <div class="quote-container">
+            <p class="quote-text">"The only way to do great work is to love what you do." – Steve Jobs</p>
         </div>
-        <div class="settings">
-            <label for="work-time">Work Time (min):</label>
-            <input type="number" id="work-time" value="25" min="1">
-            <label for="break-time">Break Time (min):</label>
-            <input type="number" id="break-time" value="5" min="1">
-        </div>
+        <div id="timer">00:00:00</div>
+        <button id="toggle" style="display: none;">Resume</button>
     </div>
+    <div class="sessions-container">
+        <h2>Sessions</h2>
+        <div id="sessions"></div>
+    </div>
+    <button id="add-session">+</button>
 
     <script>
-        // Basic Timer Functionality (adapted from typical Pomodoro scripts)
-        let timer;
-        let timeLeft = 25 * 60; // Default 25 minutes
-        let isRunning = false;
-        let isWork = true;
+        let sessions = JSON.parse(localStorage.getItem('studySessions')) || [];
+        let currentSessionIndex = localStorage.getItem('currentSessionIndex');
+        if (currentSessionIndex !== null) {
+			currentSessionIndex = parseInt(currentSessionIndex);
+        } else {
+            currentSessionIndex = null;
+        }
+        let timerInterval;
+        let expandedSession = null;
 
-        const timerDisplay = document.getElementById('timer');
-        const startBtn = document.getElementById('start');
-        const pauseBtn = document.getElementById('pause');
-        const resetBtn = document.getElementById('reset');
-        const workInput = document.getElementById('work-time');
-        const breakInput = document.getElementById('break-time');
-
-        function updateDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        function formatTime(ms) {
+            let totalSeconds = Math.floor(ms / 1000);
+            let hours = Math.floor(totalSeconds / 3600);
+            let minutes = Math.floor((totalSeconds % 3600) / 60);
+            let seconds = totalSeconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        function startTimer() {
-            if (!isRunning) {
-                isRunning = true;
-                timer = setInterval(() => {
-                    timeLeft--;
-                    updateDisplay();
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        isRunning = false;
-                        alert(isWork ? 'Work session complete! Take a break.' : 'Break over! Back to work.');
-                        isWork = !isWork;
-                        timeLeft = (isWork ? parseInt(workInput.value) : parseInt(breakInput.value)) * 60;
-                        updateDisplay();
-                    }
-                }, 1000);
+        function updateTimerDisplay() {
+            if (currentSessionIndex !== null) {
+                let session = sessions[currentSessionIndex];
+                let elapsed = session.totalTime;
+                if (session.isRunning) {
+                    elapsed += Date.now() - session.lastStartTime;
+                }
+                document.getElementById('timer').textContent = formatTime(elapsed);
+                // Update the session total in the list
+                updateSessionTotal(currentSessionIndex, elapsed);
+            } else {
+                document.getElementById('timer').textContent = '00:00:00';
             }
         }
 
-        function pauseTimer() {
-            clearInterval(timer);
-            isRunning = false;
+        function updateSessionTotal(index, totalMs) {
+            let sessionDivs = document.querySelectorAll('.session');
+            if (sessionDivs[index]) {
+                let totalDiv = sessionDivs[index].querySelector('.session-total');
+                totalDiv.textContent = `Total: ${formatTime(totalMs)}`;
+            }
         }
 
-        function resetTimer() {
-            clearInterval(timer);
-            isRunning = false;
-            timeLeft = parseInt(workInput.value) * 60;
-            isWork = true;
-            updateDisplay();
+        function saveSessions() {
+            localStorage.setItem('studySessions', JSON.stringify(sessions));
+            localStorage.setItem('currentSessionIndex', currentSessionIndex);
         }
 
-        startBtn.addEventListener('click', startTimer);
-        pauseBtn.addEventListener('click', pauseTimer);
-        resetBtn.addEventListener('click', resetTimer);
+        function renderSessions() {
+            let sessionsDiv = document.getElementById('sessions');
+            sessionsDiv.innerHTML = '';
+            sessions.forEach((session, index) => {
+                let div = document.createElement('div');
+                div.className = 'session';
+                if (expandedSession === index) {
+                    div.classList.add('expanded');
+                }
+                div.onclick = () => toggleSession(index);
+                div.innerHTML = `
+                    <div class="session-name">${session.name}</div>
+                    <div class="session-total">Total: ${formatTime(session.totalTime)}</div>
+                    <div class="session-buttons">
+                        <button class="select-btn" onclick="event.stopPropagation(); selectSession(${index})">Select</button>
+                        <button class="rename-btn" onclick="event.stopPropagation(); renameSession(${index})">Rename</button>
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteSession(${index})">Delete</button>
+                    </div>
+                `;
+                sessionsDiv.appendChild(div);
+            });
+        }
 
-        // Initial display
-        updateDisplay();
+        function toggleSession(index) {
+            expandedSession = expandedSession === index ? null : index;
+            renderSessions();
+        }
+
+        function selectSession(index) {
+            currentSessionIndex = index;
+            updateToggleButton();
+            updateTimerDisplay();
+            saveSessions();
+        }
+
+        function renameSession(index) {
+            let newName = prompt('Enter new session name:', sessions[index].name);
+            if (newName && newName.trim()) {
+                sessions[index].name = newName.trim();
+                renderSessions();
+                saveSessions();
+            }
+        }
+
+        function deleteSession(index) {
+            if (confirm('Are you sure you want to delete this session?')) {
+                sessions.splice(index, 1);
+                if (currentSessionIndex === index) {
+                    currentSessionIndex = null;
+                    updateToggleButton();
+                    updateTimerDisplay();
+                } else if (currentSessionIndex > index) {
+                    currentSessionIndex--;
+                }
+                expandedSession = null;
+                renderSessions();
+                saveSessions();
+            }
+        }
+
+        function updateToggleButton() {
+            let toggleBtn = document.getElementById('toggle');
+            if (currentSessionIndex !== null) {
+                let session = sessions[currentSessionIndex];
+                toggleBtn.textContent = session.isRunning ? 'Pause' : 'Resume';
+                toggleBtn.style.display = 'block';
+            } else {
+                toggleBtn.style.display = 'none';
+            }
+        }
+
+        function toggleTimer() {
+            if (currentSessionIndex === null) return;
+            let session = sessions[currentSessionIndex];
+            if (session.isRunning) {
+                // Pause
+                session.totalTime += Date.now() - session.lastStartTime;
+                session.lastStartTime = null;
+                session.isRunning = false;
+                clearInterval(timerInterval);
+            } else {
+                // Resume
+                session.lastStartTime = Date.now();
+                session.isRunning = true;
+                timerInterval = setInterval(updateTimerDisplay, 1000);
+            }
+            updateToggleButton();
+            saveSessions();
+        }
+
+        document.getElementById('toggle').addEventListener('click', toggleTimer);
+
+        document.getElementById('add-session').addEventListener('click', () => {
+            let name = prompt('Enter session name:');
+            if (name && name.trim()) {
+                let newSession = {
+                    name: name.trim(),
+                    totalTime: 0,
+                    lastStartTime: null,
+                    isRunning: false
+                };
+                sessions.push(newSession);
+                currentSessionIndex = sessions.length - 1;
+                updateToggleButton();
+                updateTimerDisplay();
+                renderSessions();
+                saveSessions();
+            }
+        });
+
+        // Initialize
+        renderSessions();
+        updateToggleButton();
+        updateTimerDisplay();
+        if (currentSessionIndex !== null && sessions[currentSessionIndex].isRunning) {
+            timerInterval = setInterval(updateTimerDisplay, 1000);
+        }
     </script>
 </body>
 </html>
